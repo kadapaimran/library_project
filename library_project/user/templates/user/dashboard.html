@@ -1,0 +1,67 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="user-dashboard">
+    <div class="dashboard-header card">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-value">{{ active_borrowings.count }}</span>
+                <span class="stat-label">Active Borrowings</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="borrowings-section card">
+        <h2>Your Borrowed Books</h2>
+        <div class="borrowings-grid">
+            {% for borrowing in active_borrowings %}
+            <div class="borrowing-card">
+                {% if borrowing.book.cover_image %}
+                    <img src="{{ borrowing.book.cover_image.url }}" alt="{{ borrowing.book.title }}" class="book-thumbnail">
+                {% endif %}
+                <div class="borrowing-info">
+                    <h3>{{ borrowing.book.title }}</h3>
+                    <p>Due: {{ borrowing.due_date|date:"M d, Y" }}</p>
+                    {% if borrowing.is_overdue %}
+                        <span class="status-badge overdue">Overdue</span>
+                    {% else %}
+                        <span class="status-badge borrowed">Active</span>
+                    {% endif %}
+                    <div class="borrowing-actions">
+                        <a href="{% url 'download_book' borrowing.pk %}" class="btn btn-small">Download PDF</a>
+                        <form method="post" action="{% url 'return_book' borrowing.pk %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-small btn-return">Return Book</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>You haven't borrowed any books yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.borrowing-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn-return {
+    background: #22c55e;
+    color: white;
+}
+
+.btn-return:hover {
+    background: #16a34a;
+}
+
+.inline-form {
+    display: inline;
+}
+</style>
+{% endblock %}

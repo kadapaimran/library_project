@@ -1,0 +1,107 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h2 class="card-title">Borrowing History</h2>
+        <div class="borrowings-list">
+            {% for borrowing in borrowings %}
+            <div class="borrowing-item">
+                <div class="book-info">
+                    {% if borrowing.book.cover_image %}
+                        <img src="{{ borrowing.book.cover_image.url }}" alt="{{ borrowing.book.title }}" class="book-cover">
+                    {% endif %}
+                    <div class="book-details">
+                        <h3>{{ borrowing.book.title }}</h3>
+                        <p class="book-author">by {{ borrowing.book.author }}</p>
+                        <div class="borrowing-dates">
+                            <span>Borrowed: {{ borrowing.borrowed_date|date:"M d, Y" }}</span>
+                            {% if borrowing.returned_date %}
+                                <span>Returned: {{ borrowing.returned_date|date:"M d, Y" }}</span>
+                            {% else %}
+                                <span>Due: {{ borrowing.due_date|date:"M d, Y" }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="borrowing-status">
+                    {% if borrowing.returned_date %}
+                        <span class="status-badge returned">Returned</span>
+                    {% elif borrowing.due_date < now %}
+                        <span class="status-badge overdue">Overdue</span>
+                    {% else %}
+                        <span class="status-badge active">Active</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="no-borrowings">You haven't borrowed any books yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #1e293b;
+}
+
+.borrowings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.borrowing-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+}
+
+.book-info {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.book-cover {
+    width: 80px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+}
+
+.book-details h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.book-author {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.borrowing-dates {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.no-borrowings {
+    text-align: center;
+    color: #64748b;
+    padding: 2rem;
+}
+</style>
+{% endblock %}

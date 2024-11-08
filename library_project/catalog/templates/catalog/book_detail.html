@@ -1,0 +1,64 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="book-detail container mx-auto px-4 py-8">
+    <div class="book-header flex flex-col md:flex-row gap-8 mb-8">
+        {% if book.cover_image %}
+            <div class="book-cover-wrapper flex-shrink-0">
+                <img
+                    src="{{ book.cover_image.url }}"
+                    alt="{{ book.title }}"
+                    class="book-cover rounded-lg shadow-lg max-w-[30px] w-full h-auto object-cover"
+                >
+            </div>
+        {% endif %}
+
+        <div class="book-info flex-grow space-y-4">
+            <h1 class="text-3xl font-bold text-gray-900">{{ book.title }}</h1>
+            <p class="author text-xl text-gray-700">By {{ book.author }}</p>
+            <p class="genre inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                {{ book.genre }}
+            </p>
+            <p class="isbn text-gray-600">ISBN: {{ book.isbn }}</p>
+
+            <div class="mt-6">
+                {% if book.available_copies %}
+                    <form method="post" action="{% url 'borrow_book' book.pk %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="btn bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-200">
+                            Borrow Book
+                        </button>
+                    </form>
+                {% else %}
+                    <p class="status-badge borrowed inline-block px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium">
+                        Currently Borrowed
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="book-description bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-xl font-semibold text-gray-900 mb-4">Description</h3>
+        <p class="text-gray-700 leading-relaxed">{{ book.description }}</p>
+    </div>
+</div>
+
+<style>
+    .book-cover-wrapper {
+        transition: transform 0.2s ease;
+    }
+
+    .book-cover-wrapper:hover {
+        transform: scale(1.02);
+    }
+
+    @media (max-width: 75px) {
+        .book-cover-wrapper {
+            margin: 0 auto;
+            max-width: 25px;
+        }
+    }
+</style>
+{% endblock %}

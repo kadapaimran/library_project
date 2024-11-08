@@ -1,0 +1,58 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Profile</h2>
+        <div class="profile-info">
+            <div class="info-group">
+                <label>Username</label>
+                <p>{{ user.username }}</p>
+            </div>
+            <div class="info-group">
+                <label>Email</label>
+                <p>{{ user.email }}</p>
+            </div>
+            <div class="info-group">
+                <label>First Name</label>
+                <p>{{ user.first_name|default:"Not set" }}</p>
+            </div>
+            <div class="info-group">
+                <label>Last Name</label>
+                <p>{{ user.last_name|default:"Not set" }}</p>
+            </div>
+            <div class="profile-actions">
+                <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-info {
+    margin-top: 1.5rem;
+}
+
+.info-group {
+    margin-bottom: 1.5rem;
+}
+
+.info-group label {
+    display: block;
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.info-group p {
+    font-size: 1rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.profile-actions {
+    margin-top: 2rem;
+    text-align: center;
+}
+</style>
+{% endblock %}

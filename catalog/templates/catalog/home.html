@@ -1,0 +1,57 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Welcome to the Library</h1>
+        <p>Discover thousands of books and manage your reading journey</p>
+        {% if not user.is_authenticated %}
+            <div class="hero-buttons">
+                <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+                <a href="{% url 'signup' %}" class="btn btn-secondary">Sign Up</a>
+            </div>
+        {% else %}
+            <div class="hero-buttons">
+                <a href="{% url 'book_list' %}" class="btn btn-primary">Browse Books</a>
+                {% if user.is_staff %}
+                    <a href="{% url 'librarian_dashboard' %}" class="btn btn-secondary">Librarian Dashboard</a>
+                {% else %}
+                    <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">My Dashboard</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.hero-section {
+    background: linear-gradient(rgba(30, 41, 59, 0.9), rgba(30, 41, 59, 0.9)),
+                url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=2000');
+    background-size: cover;
+    background-position: center;
+    padding: 6rem 2rem;
+    border-radius: 1rem;
+    margin-bottom: 3rem;
+    text-align: center;
+    color: white;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+</style>
+{% endblock %}

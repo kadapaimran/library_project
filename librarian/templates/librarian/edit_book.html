@@ -1,0 +1,338 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="card">
+        <h2 class="card-title">
+            <i class="fas fa-book"></i>
+            Edit Book
+        </h2>
+        <form method="post" enctype="multipart/form-data" class="form" id="bookForm">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="title" class="input-label">
+                        <i class="fas fa-heading"></i>
+                        Title
+                    </label>
+                    <input type="text" name="title" id="title" value="{{ book.title }}"
+                           class="form-input" placeholder="Enter book title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="author" class="input-label">
+                        <i class="fas fa-user-edit"></i>
+                        Author
+                    </label>
+                    <input type="text" name="author" id="author" value="{{ book.author }}"
+                           class="form-input" placeholder="Enter author name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="isbn" class="input-label">
+                        <i class="fas fa-barcode"></i>
+                        ISBN
+                    </label>
+                    <input type="text" name="isbn" id="isbn" value="{{ book.isbn }}"
+                           class="form-input" placeholder="Enter ISBN"
+                           pattern="^(?:\d{10}|\d{13})$"
+                           title="Please enter a valid 10 or 13 digit ISBN" required>
+                    <small class="help-text">Enter 10 or 13 digit ISBN number</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="genre" class="input-label">
+                        <i class="fas fa-bookmark"></i>
+                        Genre
+                    </label>
+                    <select name="genre" id="genre" class="form-input" required>
+                        <option value="Fiction" {% if book.genre == 'Fiction' %}selected{% endif %}>Fiction</option>
+                        <option value="Non-Fiction" {% if book.genre == 'Non-Fiction' %}selected{% endif %}>Non-Fiction</option>
+                        <option value="Science" {% if book.genre == 'Science' %}selected{% endif %}>Science</option>
+                        <option value="Technology" {% if book.genre == 'Technology' %}selected{% endif %}>Technology</option>
+                        <option value="History" {% if book.genre == 'History' %}selected{% endif %}>History</option>
+                        <option value="Biography" {% if book.genre == 'Biography' %}selected{% endif %}>Biography</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="total_copies" class="input-label">
+                        <i class="fas fa-copy"></i>
+                        Number of Copies
+                    </label>
+                    <input type="number" name="total_copies" id="total_copies"
+                           min="1" value="{{ book.total_copies }}" class="form-input" required>
+                    <small class="help-text">Current available copies: {{ book.available_copies }}</small>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="description" class="input-label">
+                        <i class="fas fa-align-left"></i>
+                        Description
+                    </label>
+                    <textarea name="description" id="description" rows="4"
+                              class="form-input" placeholder="Enter book description" required>{{ book.description }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="cover_image" class="input-label">
+                        <i class="fas fa-image"></i>
+                        Cover Image
+                    </label>
+                    <div class="file-drop-zone" id="coverDropZone">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="thumbnail" id="coverPreview">
+                        {% endif %}
+                        <input type="file" name="cover_image" id="cover_image"
+                               class="file-input" accept="image/*">
+                        <small class="help-text">Drop a new image or click to browse</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pdf_file" class="input-label">
+                        <i class="fas fa-file-pdf"></i>
+                        PDF File
+                    </label>
+                    <div class="file-drop-zone" id="pdfDropZone">
+                        {% if book.pdf_file %}
+                            <p class="current-file">
+                                <i class="fas fa-file-pdf"></i>
+                                Current file: {{ book.pdf_file.name }}
+                            </p>
+                        {% endif %}
+                        <input type="file" name="pdf_file" id="pdf_file"
+                               class="file-input" accept="application/pdf">
+                        <small class="help-text">Drop a new PDF or click to browse</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Save Changes
+                </button>
+                <a href="{% url 'librarian_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .input-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #1e293b;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.25rem;
+        font-size: 1rem;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    }
+
+    .help-text {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+
+    .file-drop-zone {
+        border: 2px dashed #e2e8f0;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .file-drop-zone.drag-over {
+        border-color: #4f46e5;
+        background: rgba(79, 70, 229, 0.05);
+    }
+
+    .file-input {
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .thumbnail {
+        max-width: 200px;
+        max-height: 300px;
+        object-fit: cover;
+        border-radius: 0.25rem;
+        margin: 1rem 0;
+    }
+
+    .current-file {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        color: #64748b;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.25rem;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: #4f46e5;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: #4338ca;
+    }
+
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #1e293b;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+        background: #e2e8f0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    @media (max-width: 640px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    const fileDropZones = document.querySelectorAll('.file-drop-zone');
+
+    fileDropZones.forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+
+        zone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+        });
+
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+
+            const input = zone.querySelector('input[type="file"]');
+            const file = e.dataTransfer.files[0];
+
+            if (file && input.accept.includes(file.type)) {
+                input.files = e.dataTransfer.files;
+
+                if (input.id === 'cover_image') {
+                    const preview = zone.querySelector('#coverPreview');
+                    const reader = new FileReader();
+
+                    reader.onload = (e) => {
+                        if (preview) {
+                            preview.src = e.target.result;
+                        } else {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.id = 'coverPreview';
+                            img.className = 'thumbnail';
+                            zone.insertBefore(img, input);
+                        }
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+    });
+
+    document.getElementById('cover_image').addEventListener('change', function(e) {
+        const file = this.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const preview = document.getElementById('coverPreview');
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                if (preview) {
+                    preview.src = e.target.result;
+                } else {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.id = 'coverPreview';
+                    img.className = 'thumbnail';
+                    this.parentElement.insertBefore(img, this);
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+{% endblock %}

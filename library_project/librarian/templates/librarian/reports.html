@@ -1,0 +1,401 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Time Range Selector -->
+    <div class="card time-selector">
+        <form method="get" class="time-range-form">
+            <label for="days" class="text-label">Time Period:</label>
+            <select name="days" id="days" onchange="this.form.submit()" class="select-input">
+                <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+                <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+                <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+                <option value="365" {% if days == 365 %}selected{% endif %}>Last year</option>
+            </select>
+        </form>
+    </div>
+
+    <!-- Overview Statistics -->
+    <div class="stats-grid">
+        <div class="card stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-content">
+                <h3>Total Books</h3>
+                <p class="stat-number">{{ total_books }}</p>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="stat-icon">📖</div>
+            <div class="stat-content">
+                <h3>Total Borrowings</h3>
+                <p class="stat-number">{{ total_borrowings }}</p>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+                <h3>Active Borrowings</h3>
+                <p class="stat-number">{{ active_borrowings }}</p>
+            </div>
+        </div>
+        <div class="card stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-content">
+                <h3>Overdue Books</h3>
+                <p class="stat-number">{{ overdue_borrowings }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="main-grid">
+        <!-- Popular Books -->
+        <div class="card popular-books-section">
+            <h2 class="section-title">Most Popular Books</h2>
+            <div class="popular-books">
+                {% for book in popular_books %}
+                <div class="popular-book-card">
+                    <div class="book-image">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="book-thumbnail">
+                        {% else %}
+                            <div class="book-placeholder">📗</div>
+                        {% endif %}
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">{{ book.title }}</h3>
+                        <p class="borrow-count">{{ book.borrow_count }} borrowings</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Genre Distribution -->
+        <div class="card genre-section">
+            <h2 class="section-title">Genre Distribution</h2>
+            <div class="genre-distribution">
+                {% for genre in genre_distribution %}
+                <div class="genre-item">
+                    <div class="genre-header">
+                        <span class="genre-name">{{ genre.book__genre }}</span>
+                        <span class="genre-count">{{ genre.count }}</span>
+                    </div>
+                    <div class="genre-bar-container">
+                        <div class="genre-bar" style="width: {{ genre.count|divisibleby:total_borrowings }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Borrowings -->
+        <div class="card borrowings-section">
+            <h2 class="section-title">Recent Borrowings</h2>
+            <div class="table-container">
+                <table class="borrowings-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Book</th>
+                            <th>Borrowed Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for borrowing in recent_borrowings %}
+                        <tr>
+                            <td>{{ borrowing.user.username }}</td>
+                            <td class="book-cell">{{ borrowing.book.title }}</td>
+                            <td>{{ borrowing.borrowed_date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="status-badge {% if borrowing.returned_date %}returned{% elif borrowing.due_date < now %}overdue{% else %}active{% endif %}">
+                                    {% if borrowing.returned_date %}
+                                        Returned
+                                    {% elif borrowing.due_date < now %}
+                                        Overdue
+                                    {% else %}
+                                        Active
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Main Container */
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f8fafc;
+}
+
+/* Card Styles */
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Time Selector */
+.time-selector {
+    margin-bottom: 2rem;
+}
+
+.time-range-form {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.text-label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.select-input {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background-color: white;
+    min-width: 200px;
+    font-size: 0.95rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    padding: 1rem;
+    background: #f3f4f6;
+    border-radius: 12px;
+}
+
+.stat-content h3 {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-number {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+/* Main Grid Layout */
+.main-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+    gap: 1.5rem;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+/* Popular Books */
+.popular-books {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.popular-book-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.book-image {
+    flex-shrink: 0;
+    width: 80px;
+    height: 120px;
+}
+
+.book-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.book-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e5e7eb;
+    border-radius: 4px;
+    font-size: 2rem;
+}
+
+.book-title {
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.borrow-count {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* Genre Distribution */
+.genre-distribution {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.genre-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.genre-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.genre-name {
+    font-weight: 500;
+    color: #374151;
+}
+
+.genre-count {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.genre-bar-container {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.genre-bar {
+    height: 100%;
+    background: linear-gradient(to right, #60a5fa, #3b82f6);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Borrowings Table */
+.table-container {
+    overflow-x: auto;
+}
+
+.borrowings-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.borrowings-table th {
+    background: #f9fafb;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.borrowings-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.book-cell {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-badge.returned {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.active {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge.overdue {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .popular-books {
+        grid-template-columns: 1fr;
+    }
+
+    .borrowings-table th,
+    .borrowings-table td {
+        padding: 0.5rem;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'catalog/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Search Section -->
+    <div class="mb-8 bg-white rounded-lg shadow-md p-6">
+        <form method="get" class="flex gap-4">
+            <input type="text" name="search" placeholder="Search books..." class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select name="filter" class="px-4 py-2 border rounded-lg">
+                <option value="all">All Categories</option>
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+                <option value="genre">Genre</option>
+            </select>
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Books Display -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for book in books %}
+        <div class="book-card bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+            <!-- Book Cover -->
+            <div class="relative h-64 bg-gray-100">
+                {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="flex items-center justify-center h-full bg-gray-200">
+                        <span class="text-gray-400 text-4xl">📚</span>
+                    </div>
+                {% endif %}
+
+                <!-- Availability Badge -->
+                <div class="absolute top-4 right-4">
+                    {% if book.available %}
+                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm">Available</span>
+                    {% else %}
+                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm">Borrowed</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Book Info -->
+            <div class="p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-2">{{ book.title }}</h3>
+                <p class="text-gray-600 mb-2">By {{ book.author }}</p>
+                <div class="flex items-center mb-4">
+                    <span class="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">{{ book.genre }}</span>
+                </div>
+
+                {% if book.description %}
+                <p class="text-gray-600 mb-4 line-clamp-3">{{ book.description }}</p>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="flex justify-between items-center mt-4">
+                    <a href="{% url 'book_detail' book.id %}" class="text-blue-600 hover:text-blue-800 font-medium">
+                        View Details →
+                    </a>
+                    {% if book.available %}
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Borrow Book
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <div class="text-gray-500 text-xl">
+                <span class="block text-4xl mb-4">📚</span>
+                No books found matching your search criteria.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if books.has_other_pages %}
+    <div class="mt-8 flex justify-center">
+        <nav class="flex space-x-2">
+            {% if books.has_previous %}
+            <a href="?page={{ books.previous_page_number }}" class="px-4 py-2 border rounded hover:bg-gray-100">Previous</a>
+            {% endif %}
+
+            {% for num in books.paginator.page_range %}
+                {% if books.number == num %}
+                <span class="px-4 py-2 border rounded bg-blue-600 text-white">{{ num }}</span>
+                {% else %}
+                <a href="?page={{ num }}" class="px-4 py-2 border rounded hover:bg-gray-100">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if books.has_next %}
+            <a href="?page={{ books.next_page_number }}" class="px-4 py-2 border rounded hover:bg-gray-100">Next</a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
