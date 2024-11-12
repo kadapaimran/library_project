@@ -1,104 +1,279 @@
-{% extends 'catalog/base.html' %}
+{% extends 'catalog/layout.html' %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="book-list-container">
     <!-- Search Section -->
-    <div class="mb-8 bg-white rounded-lg shadow-md p-6">
-        <form method="get" class="flex gap-4">
-            <input type="text" name="search" placeholder="Search books..." class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <select name="filter" class="px-4 py-2 border rounded-lg">
-                <option value="all">All Categories</option>
-                <option value="title">Title</option>
-                <option value="author">Author</option>
-                <option value="genre">Genre</option>
-            </select>
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                Search
-            </button>
+    <div class="search-section card">
+        <form method="get" action="{% url 'book_list' %}" class="search-form">
+            <div class="search-input">
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="{{ query }}" 
+                    class="form-control" 
+                    placeholder="Search books by title, author, or genre..."
+                    autocomplete="off"
+                >
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
         </form>
     </div>
 
-    <!-- Books Display -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {% for book in books %}
-        <div class="book-card bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
-            <!-- Book Cover -->
-            <div class="relative h-64 bg-gray-100">
-                {% if book.cover_image %}
-                    <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="w-full h-full object-cover">
-                {% else %}
-                    <div class="flex items-center justify-center h-full bg-gray-200">
-                        <span class="text-gray-400 text-4xl">📚</span>
-                    </div>
-                {% endif %}
-
-                <!-- Availability Badge -->
-                <div class="absolute top-4 right-4">
-                    {% if book.available %}
-                        <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm">Available</span>
+    {% if recommended_books %}
+    <!-- Recommendations Section -->
+    <section class="recommendations-section">
+        <h2 class="section-title">Recommended for You</h2>
+        <div class="books-grid">
+            {% for book in recommended_books %}
+            <article class="book-card">
+                <div class="book-cover">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" loading="lazy">
                     {% else %}
-                        <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm">Borrowed</span>
+                        <div class="no-cover">📚</div>
                     {% endif %}
+                    <div class="book-overlay">
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary btn-sm">View Details</a>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Book Info -->
-            <div class="p-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-2">{{ book.title }}</h3>
-                <p class="text-gray-600 mb-2">By {{ book.author }}</p>
-                <div class="flex items-center mb-4">
-                    <span class="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">{{ book.genre }}</span>
+                <div class="book-info">
+                    <h3>{{ book.title }}</h3>
+                    <p class="author">By {{ book.author }}</p>
+                    <p class="genre">{{ book.genre }}</p>
+                    <div class="book-status">
+                        {% if book.available_copies > 0 %}
+                            <span class="status-badge available">Available</span>
+                        {% else %}
+                            <span class="status-badge borrowed">Borrowed</span>
+                        {% endif %}
+                    </div>
                 </div>
-
-                {% if book.description %}
-                <p class="text-gray-600 mb-4 line-clamp-3">{{ book.description }}</p>
-                {% endif %}
-
-                <!-- Action Buttons -->
-                <div class="flex justify-between items-center mt-4">
-                    <a href="{% url 'book_detail' book.id %}" class="text-blue-600 hover:text-blue-800 font-medium">
-                        View Details →
-                    </a>
-                    {% if book.available %}
-                    <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                        Borrow Book
-                    </button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-span-full text-center py-12">
-            <div class="text-gray-500 text-xl">
-                <span class="block text-4xl mb-4">📚</span>
-                No books found matching your search criteria.
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Pagination -->
-    {% if books.has_other_pages %}
-    <div class="mt-8 flex justify-center">
-        <nav class="flex space-x-2">
-            {% if books.has_previous %}
-            <a href="?page={{ books.previous_page_number }}" class="px-4 py-2 border rounded hover:bg-gray-100">Previous</a>
-            {% endif %}
-
-            {% for num in books.paginator.page_range %}
-                {% if books.number == num %}
-                <span class="px-4 py-2 border rounded bg-blue-600 text-white">{{ num }}</span>
-                {% else %}
-                <a href="?page={{ num }}" class="px-4 py-2 border rounded hover:bg-gray-100">{{ num }}</a>
-                {% endif %}
+            </article>
             {% endfor %}
-
-            {% if books.has_next %}
-            <a href="?page={{ books.next_page_number }}" class="px-4 py-2 border rounded hover:bg-gray-100">Next</a>
-            {% endif %}
-        </nav>
-    </div>
+        </div>
+    </section>
     {% endif %}
+
+    <!-- All Books Section -->
+    <section class="all-books-section">
+        <h2 class="section-title">All Books</h2>
+        <div class="books-grid">
+            {% for book in books %}
+            <article class="book-card">
+                <div class="book-cover">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" loading="lazy">
+                    {% else %}
+                        <div class="no-cover">📚</div>
+                    {% endif %}
+                    <div class="book-overlay">
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary btn-sm">View Details</a>
+                    </div>
+                </div>
+                <div class="book-info">
+                    <h3>{{ book.title }}</h3>
+                    <p class="author">By {{ book.author }}</p>
+                    <p class="genre">{{ book.genre }}</p>
+                    <div class="book-status">
+                        {% if book.available_copies > 0 %}
+                            <span class="status-badge available">Available</span>
+                        {% else %}
+                            <span class="status-badge borrowed">Borrowed</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <div class="no-results">
+                <div class="no-results-icon">🔍</div>
+                <p>No books found matching your search.</p>
+                <a href="{% url 'book_list' %}" class="btn btn-secondary">Clear Search</a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
 </div>
 
+<style>
+.book-list-container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.search-section {
+    margin-bottom: 2rem;
+}
+
+.search-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-input {
+    display: flex;
+    gap: 1rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.book-card {
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.book-cover {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.book-card:hover .book-cover img {
+    transform: scale(1.05);
+}
+
+.book-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.book-card:hover .book-overlay {
+    opacity: 1;
+}
+
+.no-cover {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7fafc;
+    font-size: 3rem;
+}
+
+.book-info {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.book-info h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+}
+
+.author {
+    color: var(--secondary);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.genre {
+    color: var(--secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.book-status {
+    margin-top: auto;
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.no-results-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .search-input {
+        flex-direction: column;
+    }
+
+    .books-grid {
+        gap: 1rem;
+    }
+
+    .book-card {
+        max-width: 100%;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .book-card,
+    .no-results {
+        background: #1e293b;
+    }
+
+    .no-cover {
+        background: #334155;
+    }
+
+    .book-info h3 {
+        color: #e2e8f0;
+    }
+
+    .author,
+    .genre {
+        color: #94a3b8;
+    }
+}
+</style>
 {% endblock %}

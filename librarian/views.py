@@ -7,10 +7,8 @@ from django.contrib.auth.models import User
 from datetime import timedelta
 from catalog.models import Book, Borrowing
 
-
 def is_librarian(user):
     return user.is_authenticated and user.is_staff
-
 
 @user_passes_test(is_librarian)
 def librarian_dashboard(request):
@@ -51,7 +49,6 @@ def librarian_dashboard(request):
         'now': timezone.now()
     })
 
-
 @user_passes_test(is_librarian)
 def add_book(request):
     if request.method == 'POST':
@@ -70,7 +67,6 @@ def add_book(request):
         return redirect('librarian_dashboard')
     return render(request, 'librarian/add_book.html')
 
-
 @user_passes_test(is_librarian)
 def edit_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
@@ -80,7 +76,7 @@ def edit_book(request, pk):
         book.isbn = request.POST['isbn']
         book.genre = request.POST['genre']
         book.description = request.POST['description']
-
+        
         new_total_copies = int(request.POST.get('total_copies', book.total_copies))
         copies_difference = new_total_copies - book.total_copies
         book.total_copies = new_total_copies
@@ -90,35 +86,33 @@ def edit_book(request, pk):
             book.cover_image = request.FILES['cover_image']
         if 'pdf_file' in request.FILES:
             book.pdf_file = request.FILES['pdf_file']
-
+        
         book.save()
         messages.success(request, 'Book updated successfully!')
         return redirect('librarian_dashboard')
-
+    
     return render(request, 'librarian/edit_book.html', {'book': book})
-
 
 @user_passes_test(is_librarian)
 def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
-
+    
     # Check if book has any active borrowings
     active_borrowings = Borrowing.objects.filter(
         book=book,
         returned_date__isnull=True
     ).exists()
-
+    
     if active_borrowings:
         messages.error(request, 'Cannot delete book while it has active borrowings.')
         return redirect('librarian_dashboard')
-
+    
     if request.method == 'POST':
         book.delete()
         messages.success(request, 'Book deleted successfully!')
         return redirect('librarian_dashboard')
-
+    
     return render(request, 'librarian/delete_book.html', {'book': book})
-
 
 @user_passes_test(is_librarian)
 def return_book(request, pk):
@@ -131,12 +125,11 @@ def return_book(request, pk):
         messages.success(request, 'Book marked as returned successfully!')
     return redirect('librarian_dashboard')
 
-
 @user_passes_test(is_librarian)
 def borrowing_reports(request):
     days = int(request.GET.get('days', 30))
     start_date = timezone.now() - timedelta(days=days)
-
+    
     total_books = Book.objects.count()
     total_borrowings = Borrowing.objects.filter(
         borrowed_date__gte=start_date
@@ -148,21 +141,21 @@ def borrowing_reports(request):
         returned_date__isnull=True,
         due_date__lt=timezone.now()
     ).count()
-
+    
     popular_books = Book.objects.annotate(
         borrow_count=Count('borrowing', filter=Q(borrowing__borrowed_date__gte=start_date))
     ).order_by('-borrow_count')[:5]
-
+    
     genre_distribution = Borrowing.objects.filter(
         borrowed_date__gte=start_date
     ).values('book__genre').annotate(
         count=Count('id')
     ).order_by('-count')
-
+    
     recent_borrowings = Borrowing.objects.filter(
         borrowed_date__gte=start_date
     ).select_related('user', 'book').order_by('-borrowed_date')[:10]
-
+    
     context = {
         'days': days,
         'total_books': total_books,
@@ -174,5 +167,5 @@ def borrowing_reports(request):
         'recent_borrowings': recent_borrowings,
         'now': timezone.now()
     }
-
+    
     return render(request, 'librarian/reports.html', context)

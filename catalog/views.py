@@ -3,33 +3,35 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib import messages
 from django.utils import timezone
+from django.http import JsonResponse
 from .models import Book, Borrowing
-
 
 def home(request):
     if request.user.is_authenticated:
         return redirect('book_list')
     return render(request, 'catalog/home.html')
 
-
 @login_required
 def book_list(request):
     query = request.GET.get('q', '')
     books = Book.objects.all()
-
+    
     if query:
         books = books.filter(
             Q(title__icontains=query) |
             Q(author__icontains=query) |
             Q(genre__icontains=query)
         )
-
+    
+    # Get personalized recommendations
+    recommended_books = Book.get_recommendations(request.user)
+    
     return render(request, 'catalog/book_list.html', {
         'books': books,
+        'recommended_books': recommended_books,
         'query': query,
         'now': timezone.now()
     })
-
 
 @login_required
 def book_detail(request, pk):
@@ -39,11 +41,18 @@ def book_detail(request, pk):
         'now': timezone.now()
     })
 
-
 @login_required
 def borrow_book(request, pk):
     if request.method == 'POST':
         book = get_object_or_404(Book, pk=pk)
+        
+        # Check if user can borrow this book
+        can_borrow, error_message = Borrowing.user_can_borrow(request.user, book)
+        
+        if not can_borrow:
+            messages.error(request, error_message)
+            return redirect('book_detail', pk=pk)
+            
         if book.is_available():
             due_date = timezone.now() + timezone.timedelta(days=14)
             Borrowing.objects.create(

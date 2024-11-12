@@ -1,4 +1,4 @@
-{% extends 'catalog/base.html' %}
+{% extends 'catalog/layout.html' %}
 
 {% block content %}
 <div class="dashboard-container">
@@ -18,28 +18,28 @@
     <!-- Overview Statistics -->
     <div class="stats-grid">
         <div class="card stat-card">
-            <div class="stat-icon">📚</div>
+            <div class="stat-icon books">📚</div>
             <div class="stat-content">
                 <h3>Total Books</h3>
                 <p class="stat-number">{{ total_books }}</p>
             </div>
         </div>
         <div class="card stat-card">
-            <div class="stat-icon">📖</div>
+            <div class="stat-icon borrowings">📖</div>
             <div class="stat-content">
                 <h3>Total Borrowings</h3>
                 <p class="stat-number">{{ total_borrowings }}</p>
             </div>
         </div>
         <div class="card stat-card">
-            <div class="stat-icon">👥</div>
+            <div class="stat-icon active">👥</div>
             <div class="stat-content">
                 <h3>Active Borrowings</h3>
                 <p class="stat-number">{{ active_borrowings }}</p>
             </div>
         </div>
         <div class="card stat-card">
-            <div class="stat-icon">⚠️</div>
+            <div class="stat-icon overdue">⚠️</div>
             <div class="stat-content">
                 <h3>Overdue Books</h3>
                 <p class="stat-number">{{ overdue_borrowings }}</p>
@@ -135,26 +135,29 @@
     margin: 0 auto;
     padding: 2rem;
     background-color: #f8fafc;
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
 /* Card Styles */
 .card {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    padding: 1.75rem;
     margin-bottom: 1.5rem;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 /* Time Selector */
 .time-selector {
-    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: white;
 }
 
 .time-range-form {
@@ -165,22 +168,33 @@
 
 .text-label {
     font-weight: 600;
-    color: #374151;
+    color: white;
 }
 
 .select-input {
-    padding: 0.5rem 1rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    background-color: white;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
     min-width: 200px;
     font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.select-input:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.select-input option {
+    background: #4f46e5;
+    color: white;
 }
 
 /* Stats Grid */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -188,73 +202,72 @@
 .stat-card {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
+    gap: 1.5rem;
+    padding: 2rem;
 }
 
 .stat-icon {
     font-size: 2rem;
-    padding: 1rem;
-    background: #f3f4f6;
+    padding: 1.25rem;
     border-radius: 12px;
+    background: #f3f4f6;
 }
 
+.stat-icon.books { background: #dbeafe; }
+.stat-icon.borrowings { background: #dcfce7; }
+.stat-icon.active { background: #f3e8ff; }
+.stat-icon.overdue { background: #fee2e2; }
+
 .stat-content h3 {
-    color: #6b7280;
+    color: #4b5563;
     font-size: 0.875rem;
     margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .stat-number {
-    font-size: 1.875rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: #1f2937;
-}
-
-/* Main Grid Layout */
-.main-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-    gap: 1.5rem;
-}
-
-/* Section Titles */
-.section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
     color: #111827;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #f3f4f6;
+    line-height: 1;
 }
 
 /* Popular Books */
 .popular-books {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.25rem;
 }
 
 .popular-book-card {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 1.25rem;
+    padding: 1.25rem;
     background: #f9fafb;
-    border-radius: 8px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.popular-book-card:hover {
+    background: #f3f4f6;
+    transform: translateX(4px);
 }
 
 .book-image {
     flex-shrink: 0;
-    width: 80px;
-    height: 120px;
+    width: 90px;
+    height: 130px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .book-thumbnail {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 4px;
 }
 
 .book-placeholder {
@@ -263,33 +276,41 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #e5e7eb;
-    border-radius: 4px;
-    font-size: 2rem;
+    background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+    font-size: 2.5rem;
 }
 
 .book-title {
     font-weight: 600;
-    color: #111827;
+    color: #1f2937;
     margin-bottom: 0.5rem;
+    line-height: 1.3;
 }
 
 .borrow-count {
     color: #6b7280;
     font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.borrow-count::before {
+    content: "📈";
+    font-size: 1rem;
 }
 
 /* Genre Distribution */
 .genre-distribution {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
 .genre-item {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .genre-header {
@@ -299,35 +320,34 @@
 }
 
 .genre-name {
-    font-weight: 500;
+    font-weight: 600;
     color: #374151;
 }
 
 .genre-count {
     color: #6b7280;
     font-size: 0.875rem;
+    background: #f3f4f6;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
 }
 
 .genre-bar-container {
     width: 100%;
     height: 8px;
     background: #e5e7eb;
-    border-radius: 4px;
+    border-radius: 999px;
     overflow: hidden;
 }
 
 .genre-bar {
     height: 100%;
-    background: linear-gradient(to right, #60a5fa, #3b82f6);
-    border-radius: 4px;
-    transition: width 0.3s ease;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border-radius: 999px;
+    transition: width 0.4s ease;
 }
 
 /* Borrowings Table */
-.table-container {
-    overflow-x: auto;
-}
-
 .borrowings-table {
     width: 100%;
     border-collapse: separate;
@@ -336,31 +356,33 @@
 
 .borrowings-table th {
     background: #f9fafb;
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     text-align: left;
     font-weight: 600;
     color: #374151;
     border-bottom: 2px solid #e5e7eb;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
 }
 
 .borrowings-table td {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid #e5e7eb;
 }
 
-.book-cell {
-    max-width: 300px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.borrowings-table tr:hover td {
+    background: #f9fafb;
 }
 
 .status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 1rem;
+    border-radius: 999px;
     font-size: 0.875rem;
     font-weight: 500;
+    gap: 0.5rem;
 }
 
 .status-badge.returned {
@@ -368,14 +390,50 @@
     color: #166534;
 }
 
+.status-badge.returned::before {
+    content: "✔️";
+    font-size: 0.875rem;
+}
+
 .status-badge.active {
     background: #dbeafe;
     color: #1e40af;
 }
 
+.status-badge.active::before {
+    content: "📖";
+    font-size: 0.875rem;
+}
+
 .status-badge.overdue {
     background: #fee2e2;
     color: #991b1b;
+}
+
+.status-badge.overdue::before {
+    content: "⚠️";
+    font-size: 0.875rem;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e5e7eb;
+    position: relative;
+}
+
+.section-title::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
 }
 
 /* Responsive Design */
@@ -385,7 +443,8 @@
     }
 
     .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
     }
 
     .popular-books {
@@ -394,7 +453,11 @@
 
     .borrowings-table th,
     .borrowings-table td {
-        padding: 0.5rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .stat-card {
+        padding: 1.5rem;
     }
 }
 </style>

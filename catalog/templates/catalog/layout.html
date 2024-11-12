@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Library Management System{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --primary-light: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary-light: #64748b;
+            --bg-light: #f8fafc;
+            --text-light: #1e293b;
+            --border-light: #e2e8f0;
+
+            /* Dark Theme Variables */
+            --primary-dark-theme: #60a5fa;
+            --secondary-dark-theme: #94a3b8;
+            --bg-dark: #0f172a;
+            --bg-dark-secondary: #1e293b;
+            --text-dark: #e2e8f0;
+            --border-dark: #334155;
+
+            /* Common Variables */
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius: 0.5rem;
+            --radius-lg: 1rem;
+            --transition: all 0.2s ease;
+        }
+
+        /* System Dark Mode Detection */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: var(--primary-dark-theme);
+                --secondary: var(--secondary-dark-theme);
+                --bg: var(--bg-dark);
+                --bg-secondary: var(--bg-dark-secondary);
+                --text: var(--text-dark);
+                --border: var(--border-dark);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --primary: var(--primary-light);
+                --secondary: var(--secondary-light);
+                --bg: var(--bg-light);
+                --bg-secondary: white;
+                --text: var(--text-light);
+                --border: var(--border-light);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: var(--bg-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo:hover {
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: auto;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            transition: var(--transition);
+            background: var(--bg-secondary);
+            color: var(--text);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        tr:hover {
+            background: var(--bg);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.available { background: #dcfce7; color: #166534; }
+        .status-badge.borrowed { background: #fff7ed; color: #9a3412; }
+        .status-badge.overdue { background: #fef2f2; color: #991b1b; }
+        .status-badge.returned { background: #f0fdf4; color: #166534; }
+        .status-badge.active { background: #eff6ff; color: #1e40af; }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .alert-success { border-color: #22c55e; background: #f0fdf4; color: #166534; }
+        .alert-error { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+        .alert-warning { border-color: #f59e0b; background: #fffbeb; color: #92400e; }
+        .alert-info { border-color: #3b82f6; background: #eff6ff; color: #1e40af; }
+
+        /* Dark mode overrides for specific components */
+        @media (prefers-color-scheme: dark) {
+            .status-badge {
+                background: var(--bg-dark-secondary);
+                color: var(--text-dark);
+            }
+
+            .alert {
+                background: var(--bg-dark-secondary);
+                color: var(--text-dark);
+            }
+
+            .btn-secondary {
+                background: var(--bg-dark-secondary);
+                color: var(--text-dark);
+            }
+
+            .form-control {
+                background: var(--bg-dark-secondary);
+                color: var(--text-dark);
+                border-color: var(--border-dark);
+            }
+
+            th {
+                background: var(--bg-dark-secondary);
+            }
+
+            tr:hover {
+                background: var(--bg-dark-secondary);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                padding: 0.75rem;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+
+            .nav-link {
+                width: 100%;
+                text-align: center;
+                padding: 0.75rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav-container">
+            <a href="{% url 'home' %}" class="logo">
+                <i class="fas fa-book"></i> Library
+            </a>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                {% if user.is_authenticated %}
+                    {% if user.is_staff %}
+                        <li><a href="{% url 'librarian_dashboard' %}" class="nav-link">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a></li>
+                        <li><a href="{% url 'borrowing_reports' %}" class="nav-link">
+                            <i class="fas fa-chart-bar"></i> Reports
+                        </a></li>
+                    {% else %}
+                        <li><a href="{% url 'book_list' %}" class="nav-link">
+                            <i class="fas fa-search"></i> Browse Books
+                        </a></li>
+                        <li><a href="{% url 'user_dashboard' %}" class="nav-link">
+                            <i class="fas fa-book-reader"></i> My Books
+                        </a></li>
+                        <li><a href="{% url 'borrowing_history' %}" class="nav-link">
+                            <i class="fas fa-history"></i> History
+                        </a></li>
+                    {% endif %}
+                    <li><a href="{% url 'user_profile' %}" class="nav-link">
+                        <i class="fas fa-user"></i> Profile
+                    </a></li>
+                    <li><a href="{% url 'logout' %}" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a></li>
+                    <li><a href="{% url 'signup' %}" class="nav-link">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <i class="fas fa-info-circle"></i> {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMenu() {
+            const menu = document.getElementById('navMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('navMenu');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            if (!menu.contains(event.target) && !menuBtn.contains(event.target)) {
+                menu.classList.remove('active');
+            }
+        });
+
+        // Theme toggle functionality
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function toggleTheme(e) {
+            document.body.classList.toggle('dark-theme', e.matches);
+        }
+
+        prefersDark.addListener(toggleTheme);
+        toggleTheme(prefersDark);
+    </script>
+</body>
+</html>

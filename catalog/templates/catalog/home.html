@@ -1,20 +1,20 @@
-{% extends 'catalog/base.html' %}
+{% extends 'catalog/layout.html' %}
 
 {% block content %}
-<div class="hero-section">
+<div class="hero">
     <div class="hero-content">
-        <h1>Welcome to the Library</h1>
-        <p>Discover thousands of books and manage your reading journey</p>
+        <h1>Welcome to the Modern Library</h1>
+        <p>Discover a world of knowledge at your fingertips</p>
         {% if not user.is_authenticated %}
             <div class="hero-buttons">
-                <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
-                <a href="{% url 'signup' %}" class="btn btn-secondary">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn-primary">Get Started</a>
+                <a href="{% url 'signup' %}" class="btn btn-secondary">Create Account</a>
             </div>
         {% else %}
             <div class="hero-buttons">
                 <a href="{% url 'book_list' %}" class="btn btn-primary">Browse Books</a>
                 {% if user.is_staff %}
-                    <a href="{% url 'librarian_dashboard' %}" class="btn btn-secondary">Librarian Dashboard</a>
+                    <a href="{% url 'librarian_dashboard' %}" class="btn btn-secondary">Manage Library</a>
                 {% else %}
                     <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">My Dashboard</a>
                 {% endif %}
@@ -23,27 +23,52 @@
     </div>
 </div>
 
+<div class="features">
+    <div class="feature-card">
+        <div class="feature-icon">📚</div>
+        <h3>Vast Collection</h3>
+        <p>Access thousands of books across various genres</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Smart Recommendations</h3>
+        <p>Get personalized book suggestions based on your interests</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Easy Access</h3>
+        <p>Read your favorite books anytime, anywhere</p>
+    </div>
+</div>
+
 <style>
-.hero-section {
+.hero {
     background: linear-gradient(rgba(30, 41, 59, 0.9), rgba(30, 41, 59, 0.9)),
                 url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=2000');
     background-size: cover;
     background-position: center;
     padding: 6rem 2rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-lg);
     margin-bottom: 3rem;
     text-align: center;
     color: white;
+    animation: fadeIn 1s ease-out;
 }
 
-.hero-content h1 {
-    font-size: 3rem;
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
     font-weight: 700;
     margin-bottom: 1rem;
+    line-height: 1.2;
 }
 
-.hero-content p {
-    font-size: 1.25rem;
+.hero p {
+    font-size: clamp(1rem, 3vw, 1.25rem);
     margin-bottom: 2rem;
     opacity: 0.9;
 }
@@ -52,6 +77,86 @@
     display: flex;
     gap: 1rem;
     justify-content: center;
+    flex-wrap: wrap;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 4rem;
+}
+
+.feature-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+}
+
+.feature-card p {
+    color: var(--secondary);
+    font-size: 0.875rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        padding: 4rem 1rem;
+        margin: -1rem -1rem 2rem -1rem;
+        border-radius: 0;
+    }
+
+    .features {
+        gap: 1rem;
+    }
+
+    .feature-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .feature-card {
+        background: #1e293b;
+    }
+
+    .feature-card h3 {
+        color: #e2e8f0;
+    }
+
+    .feature-card p {
+        color: #94a3b8;
+    }
 }
 </style>
 {% endblock %}

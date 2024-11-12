@@ -1,64 +1,228 @@
-{% extends 'catalog/base.html' %}
+{% extends 'catalog/layout.html' %}
 
 {% block content %}
-<div class="book-detail container mx-auto px-4 py-8">
-    <div class="book-header flex flex-col md:flex-row gap-8 mb-8">
-        {% if book.cover_image %}
-            <div class="book-cover-wrapper flex-shrink-0">
-                <img
-                    src="{{ book.cover_image.url }}"
-                    alt="{{ book.title }}"
-                    class="book-cover rounded-lg shadow-lg max-w-[30px] w-full h-auto object-cover"
-                >
-            </div>
-        {% endif %}
-
-        <div class="book-info flex-grow space-y-4">
-            <h1 class="text-3xl font-bold text-gray-900">{{ book.title }}</h1>
-            <p class="author text-xl text-gray-700">By {{ book.author }}</p>
-            <p class="genre inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                {{ book.genre }}
-            </p>
-            <p class="isbn text-gray-600">ISBN: {{ book.isbn }}</p>
-
-            <div class="mt-6">
-                {% if book.available_copies %}
-                    <form method="post" action="{% url 'borrow_book' book.pk %}">
-                        {% csrf_token %}
-                        <button type="submit"
-                            class="btn bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition duration-200">
-                            Borrow Book
-                        </button>
-                    </form>
-                {% else %}
-                    <p class="status-badge borrowed inline-block px-4 py-2 bg-red-100 text-red-700 rounded-lg font-medium">
-                        Currently Borrowed
-                    </p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <div class="book-description bg-white rounded-lg shadow-md p-6">
-        <h3 class="text-xl font-semibold text-gray-900 mb-4">Description</h3>
-        <p class="text-gray-700 leading-relaxed">{{ book.description }}</p>
-    </div>
-</div>
-
 <style>
-    .book-cover-wrapper {
-        transition: transform 0.2s ease;
+    :root {
+        --color-bg-primary: #121212;
+        --color-bg-secondary: #1e1e1e;
+        --color-bg-card: #262626;
+        --color-text-primary: #ffffff;
+        --color-text-secondary: #a0a0a0;
+        --color-accent: #404040;
+        --color-border: #333333;
+        --color-hover: #505050;
+        --color-button: #3a3a3a;
+        --color-button-hover: #4a4a4a;
     }
 
-    .book-cover-wrapper:hover {
-        transform: scale(1.02);
+    .book-detail-container {
+        display: flex;
+        gap: 3rem;
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--color-bg-secondary);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
-    @media (max-width: 75px) {
-        .book-cover-wrapper {
+    .book-info-section {
+        flex: 1;
+    }
+
+    .book-title {
+        font-size: 2.5rem;
+        color: var(--color-text-primary);
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .author {
+        font-size: 1.25rem;
+        color: var(--color-text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    .metadata {
+        background: var(--color-bg-card);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .metadata-item {
+        display: flex;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .metadata-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .metadata-label {
+        font-weight: 500;
+        width: 100px;
+        color: var(--color-text-secondary);
+    }
+
+    .book-description {
+        background: var(--color-bg-card);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .book-description h3 {
+        color: var(--color-text-primary);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .book-description p {
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+    }
+
+    .book-image-section {
+        flex: 0 0 350px;
+    }
+
+    .book-cover-container {
+        width: 350px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        background: var(--color-bg-card);
+        padding: 1rem;
+    }
+
+    .book-cover {
+        width: 100%;
+        height: 500px;
+        object-fit: cover;
+        border-radius: 4px;
+        display: block;
+    }
+
+    .borrow-button {
+        display: inline-block;
+        background: var(--color-button);
+        color: var(--color-text-primary);
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        text-align: center;
+    }
+
+    .borrow-button:hover {
+        background: var(--color-button-hover);
+    }
+
+    .status-badge {
+        display: block;
+        padding: 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .status-badge.borrowed {
+        background: #2d2d2d;
+        color: #ff8a8a;
+        border: 1px solid #3d3d3d;
+    }
+
+    @media (max-width: 968px) {
+        .book-detail-container {
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .book-image-section {
+            flex: 0 0 auto;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .book-cover-container {
+            width: 100%;
+            max-width: 300px;
             margin: 0 auto;
-            max-width: 25px;
+        }
+
+        .book-cover {
+            height: 400px;
+        }
+
+        .book-title {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .book-cover {
+            height: 350px;
         }
     }
 </style>
+
+<div class="book-detail-container">
+    <!-- Left Section: Book Information -->
+    <div class="book-info-section">
+        <h1 class="book-title">{{ book.title }}</h1>
+        <p class="author">By {{ book.author }}</p>
+
+        <div class="metadata">
+            <div class="metadata-item">
+                <span class="metadata-label">Genre</span>
+                <span>{{ book.genre }}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">ISBN</span>
+                <span>{{ book.isbn }}</span>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">Pages</span>
+                <span>{{ book.pages }}</span>
+            </div>
+        </div>
+
+        <div class="book-description">
+            <h3>Description</h3>
+            <p>{{ book.description }}</p>
+        </div>
+
+        {% if book.available_copies %}
+            <form method="post" action="{% url 'borrow_book' book.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="borrow-button">Borrow Book</button>
+            </form>
+        {% else %}
+            <p class="status-badge borrowed">Currently Borrowed</p>
+        {% endif %}
+    </div>
+
+    <!-- Right Section: Book Image -->
+    <div class="book-image-section">
+        {% if book.cover_image %}
+            <div class="book-cover-container">
+                <img
+                    src="{{ book.cover_image.url }}"
+                    alt="{{ book.title }}"
+                    class="book-cover"
+                    loading="lazy"
+                >
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
